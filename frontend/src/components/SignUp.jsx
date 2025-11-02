@@ -1,14 +1,23 @@
+import axios from "axios";
 import { useState } from "react";
 
 export default function SignUp() {
-  const [formData, setFormData] = useState({ username: "", password: "" });
+  const [userData, setUserData] = useState({ username: "", password: "" });
 
   const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setUserData({ ...userData, [e.target.name]: e.target.value });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Sign Up Data:", formData);
+    axios
+      .post(`http://localhost:3000/api/signup`, userData)
+      .then((response) => {
+        console.log("Sign Up Successful:", response.data);
+      })
+      .catch((error) => {
+        console.error("Sign Up Error:", error);
+      });
+    console.log("Sign Up Data:", userData);
   };
 
   return (
@@ -17,7 +26,7 @@ export default function SignUp() {
         type="text"
         name="username"
         placeholder="Username"
-        value={formData.username}
+        value={userData.username}
         onChange={handleChange}
         className="w-full mb-3 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
       />
@@ -25,7 +34,7 @@ export default function SignUp() {
         type="password"
         name="password"
         placeholder="Password"
-        value={formData.password}
+        value={userData.password}
         onChange={handleChange}
         className="w-full mb-4 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
       />
