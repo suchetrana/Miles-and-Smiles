@@ -3,20 +3,16 @@ import GameCard from "./GameCard";
 
 const GameList = () => {
   const games = [
-    {
-      title: "Valorant",
-      image: "https://cdn.cloudflare.steamstatic.com/steam/apps/230410/header.jpg",
-    },
-    {
-      title: "GTA V",
-      image: "https://cdn.cloudflare.steamstatic.com/steam/apps/271590/header.jpg",
-    },
+    { title: "TicTacToe", image: "/tictactoe.png" },
+    { title: "Memory", image: "/memory.png" },
+    { title: "Snakes and Ladders", image: "/snakes_and_ladders.png" },
+    { title: "Dots and Boxes", image: "/dots_and_boxes.png" },
   ];
 
   return (
-    <div className="flex gap-6 flex-wrap justify-center mt-10">
-      {games.map((game, index) => (
-        <GameCard key={index} image={game.image} title={game.title} />
+    <div className="w-full px-4 py-8 flex gap-6 flex-wrap justify-center">
+      {games.map((game, i) => (
+        <GameCard key={i} image={game.image} title={game.title} />
       ))}
     </div>
   );

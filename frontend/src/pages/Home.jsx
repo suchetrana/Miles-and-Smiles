@@ -1,19 +1,20 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import GameList from "../components/GameList";
+import Navbar from "../components/Navbar";
 
 function Home() {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
-  };
-
   return (
-    <div>
-      Home Page
-      <button onClick={handleLogout}>Logout</button>
-    </div>
+   <div className="min-h-screen bg-[--bg] text-[--text] transition-colors duration-300">
+
+  <Navbar />
+  <GameList />
+</div>
+
+
+
   );
 }
 
