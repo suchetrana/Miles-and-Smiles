@@ -1,7 +1,5 @@
-import axios from "axios";
+import axiosClient from "../axiosClient.js";
 import { useState } from "react";
-
-const VITE_BACKEND_SERVER = import.meta.env.VITE_BACKEND_SERVER;
 
 export default function SignUp({ onMessage }) {
   const [userData, setUserData] = useState({ username: "", password: "" });
@@ -12,8 +10,8 @@ export default function SignUp({ onMessage }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     onMessage && onMessage({ text: "Signing up...", type: "info" });
-    axios
-      .post(`${VITE_BACKEND_SERVER}/auth/signup`, userData)
+    axiosClient
+      .post(`/api/auth/signup`, userData)
       .then((response) => {
         console.log("Sign Up Successful:", response.data);
         onMessage &&

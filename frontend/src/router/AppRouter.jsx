@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "../pages/Home.jsx";
 import Auth from "../pages/Auth.jsx";
 import GamePage from "../pages/GamePage.jsx";
@@ -10,19 +10,19 @@ function AppRouter() {
     <Router>
       <Routes>
 
-        <Route 
-          path="/" 
-          element={<Auth />} 
+        <Route
+          path="/"
+          element={<Auth />}
         />
 
         <Route
-          path="/home"          
+          path="/home"
           element={<ProtectedRoute><Home /></ProtectedRoute>}
         />
 
         <Route
           path="/games/:gameSlug"
-          element={<GamePage />} 
+          element={<GamePage />}
         />
 
       </Routes>

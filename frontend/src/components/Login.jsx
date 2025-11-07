@@ -1,7 +1,6 @@
-import axios from "axios";
+import axiosClient from "../axiosClient.js";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-const VITE_BACKEND_SERVER = import.meta.env.VITE_BACKEND_SERVER;
 
 export default function Login({ onMessage }) {
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -15,10 +14,7 @@ export default function Login({ onMessage }) {
 
     try {
       onMessage && onMessage({ text: "Logging in...", type: "info" });
-      const response = await axios.post(
-        `${VITE_BACKEND_SERVER}/auth/login`,
-        formData
-      );
+      const response = await axiosClient.post(`/api/auth/login`, formData);
 
       console.log("Login Successful:", response.data);
 
