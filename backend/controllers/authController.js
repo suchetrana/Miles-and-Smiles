@@ -61,7 +61,7 @@ export async function login(req, res) {
       }
     );
 
-    const safeUser = { id: user._id, username: user.username };
+    const safeUser = { id: user._id, username: user.username, friends: user.friends, favouriteGames: user.favouriteGames };
     return res
       .status(200)
       .json({ message: "Login successful", token: token, user: safeUser });

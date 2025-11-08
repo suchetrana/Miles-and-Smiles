@@ -21,6 +21,9 @@ export default function Login({ onMessage }) {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
+      // Dispatch custom event for same-tab login state changes
+      window.dispatchEvent(new Event("loginStateChange"));
+
       onMessage &&
         onMessage({
           text: "Login successful! Redirecting...",

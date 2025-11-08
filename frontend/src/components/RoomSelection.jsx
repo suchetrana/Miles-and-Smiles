@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+import Navbar from "./Navbar.jsx";
 
 const VITE_BACKEND_SERVER = import.meta.env.VITE_BACKEND_SERVER;
 
@@ -16,8 +17,7 @@ const RoomSelection = ({ gameName, onRoomJoined }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Initialize socket connection
-    const serverUrl = VITE_BACKEND_SERVER?.replace(/\/$/, "") || "http://localhost:3000";
+    const serverUrl = VITE_BACKEND_SERVER?.replace(/\/$/, "");
     console.log("Connecting to socket server:", serverUrl);
     
     const newSocket = io(serverUrl, {
@@ -161,11 +161,13 @@ const RoomSelection = ({ gameName, onRoomJoined }) => {
   };
 
   const handleBack = () => {
-    navigate("/home");
+    navigate("/");
   };
 
   if (mode === null) {
     return (
+      <>
+      <Navbar />
       <div className="min-h-screen bg-[--bg] text-[--text] flex items-center justify-center p-4">
         <div className="bg-[--card] rounded-xl shadow-lg p-8 max-w-md w-full border border-gray-200">
           <h1 className="text-3xl font-bold text-center mb-2">{gameName}</h1>
@@ -195,6 +197,7 @@ const RoomSelection = ({ gameName, onRoomJoined }) => {
           </div>
         </div>
       </div>
+      </>
     );
   }
 
