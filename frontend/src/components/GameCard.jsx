@@ -1,17 +1,21 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Star, Heart } from "lucide-react";
+import { Star } from "lucide-react";
 import axiosClient from "../axiosClient.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const GameCard = ({ image, title }) => {
   const navigate = useNavigate();
   const [isFavorited, setIsFavorited] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isAuthenticated, token, user, updateUser } = useAuth();
 
   // Fetch user's favorite games if logged in
   const fetchFavorites = async () => {
     try {
-      const response = await axiosClient.get("/api/user/favorites");
+      if (!token) return;
+      const response = await axiosClient.get("/api/user/favorites", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const favoriteGames = response.data.favouriteGames || [];
       setIsFavorited(favoriteGames.includes(title));
     } catch (error) {
@@ -21,42 +25,13 @@ const GameCard = ({ image, title }) => {
 
   // Check if user is logged in and fetch favorites
   useEffect(() => {
-    const checkLoginState = () => {
-      const token = localStorage.getItem("token");
-      setIsLoggedIn(!!token);
-
-      // Fetch user's favorite games if logged in
-      if (token) {
-        fetchFavorites();
-      } else {
-        // User is not logged in, clear favorite state
-        setIsFavorited(false);
-      }
-    };
-
-    // Check on mount and when title changes
-    checkLoginState();
-
-    // Listen for storage changes (cross-tab)
-    const handleStorageChange = (e) => {
-      if (e.key === "token") {
-        checkLoginState();
-      }
-    };
-    window.addEventListener("storage", handleStorageChange);
-
-    // Also listen for custom events (same-tab changes)
-    const handleLoginStateChange = () => {
-      checkLoginState();
-    };
-    window.addEventListener("loginStateChange", handleLoginStateChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("loginStateChange", handleLoginStateChange);
-    };
+    if (isAuthenticated) {
+      fetchFavorites();
+    } else {
+      setIsFavorited(false);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title]);
+  }, [title, isAuthenticated, token]);
 
   const handleClick = () => {
     const path = "/games/" + title.toLowerCase().replace(/\s+/g, "-");
@@ -66,16 +41,23 @@ const GameCard = ({ image, title }) => {
   const handleStarClick = async (e) => {
     e.stopPropagation(); // Prevent card click navigation
 
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       navigate("/auth");
       return;
     }
 
     try {
-      const response = await axiosClient.post("/api/user/favorites", {
-        gameTitle: title,
-      });
-      setIsFavorited(response.data.favouriteGames.includes(title));
+      const response = await axiosClient.post(
+        "/api/user/favorites",
+        { gameTitle: title },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const favs = response.data.favouriteGames || [];
+      setIsFavorited(favs.includes(title));
+      // Update user in context if available
+      if (user) {
+        updateUser({ favouriteGames: favs });
+      }
 
       // Dispatch event to notify GameList that favorites were updated
       window.dispatchEvent(new Event("favoritesUpdated"));

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import GameCard from "./GameCard";
 import axiosClient from "../axiosClient.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const GameList = () => {
   const [allGames, setAllGames] = useState([]);
@@ -8,7 +9,7 @@ const GameList = () => {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(
     () => localStorage.getItem("showFavoritesOnly") === "true"
   );
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+  const { isAuthenticated, token } = useAuth();
 
   // Fetch all games
   useEffect(() => {
@@ -26,60 +27,42 @@ const GameList = () => {
   }, []);
 
   // Fetch user's favorite games if logged in
-  const fetchFavorites = async () => {
-    if (!isLoggedIn) {
+  const fetchFavorites = useCallback(async () => {
+    if (!isAuthenticated || !token) {
       setFavoriteGames([]);
       return;
     }
 
     try {
-      const response = await axiosClient.get("/api/user/favorites");
+      const response = await axiosClient.get("/api/user/favorites", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const favoriteGameTitles = response.data.favouriteGames || [];
       setFavoriteGames(favoriteGameTitles);
     } catch (error) {
       console.error("Error fetching favorites:", error);
       setFavoriteGames([]);
     }
-  };
+  }, [isAuthenticated, token]);
 
   useEffect(() => {
     fetchFavorites();
-  }, [isLoggedIn]);
+  }, [fetchFavorites]);
 
   // Listen for favorites filter changes and favorite updates
   useEffect(() => {
     const handleFavoritesFilterChange = async (e) => {
       setShowFavoritesOnly(e.detail);
       // Refresh favorites when filter is turned on
-      if (e.detail && isLoggedIn) {
-        const token = localStorage.getItem("token");
-        if (token) {
-          try {
-            const response = await axiosClient.get("/api/user/favorites");
-            const favoriteGameTitles = response.data.favouriteGames || [];
-            setFavoriteGames(favoriteGameTitles);
-          } catch (error) {
-            console.error("Error fetching favorites:", error);
-            setFavoriteGames([]);
-          }
-        }
+      if (e.detail && isAuthenticated) {
+        fetchFavorites();
       }
     };
 
     const handleFavoritesUpdate = async () => {
       // Refresh favorites when a game is favorited/unfavorited
-      if (isLoggedIn) {
-        const token = localStorage.getItem("token");
-        if (token) {
-          try {
-            const response = await axiosClient.get("/api/user/favorites");
-            const favoriteGameTitles = response.data.favouriteGames || [];
-            setFavoriteGames(favoriteGameTitles);
-          } catch (error) {
-            console.error("Error fetching favorites:", error);
-            setFavoriteGames([]);
-          }
-        }
+      if (isAuthenticated) {
+        fetchFavorites();
       }
     };
 
@@ -89,12 +72,7 @@ const GameList = () => {
     );
     window.addEventListener("favoritesUpdated", handleFavoritesUpdate);
 
-    // Check login state
-    const checkLoginState = () => {
-      setIsLoggedIn(!!localStorage.getItem("token"));
-    };
-    window.addEventListener("loginStateChange", checkLoginState);
-    window.addEventListener("storage", checkLoginState);
+    // Context handles login state; no storage listeners needed here.
 
     return () => {
       window.removeEventListener(
@@ -102,14 +80,13 @@ const GameList = () => {
         handleFavoritesFilterChange
       );
       window.removeEventListener("favoritesUpdated", handleFavoritesUpdate);
-      window.removeEventListener("loginStateChange", checkLoginState);
-      window.removeEventListener("storage", checkLoginState);
+      // no-op
     };
-  }, [isLoggedIn]);
+  }, [isAuthenticated, fetchFavorites]);
 
   // Filter games based on showFavoritesOnly state
   const displayedGames =
-    showFavoritesOnly && isLoggedIn
+    showFavoritesOnly && isAuthenticated
       ? allGames.filter((game) => favoriteGames.includes(game.title))
       : allGames;
 
@@ -119,7 +96,7 @@ const GameList = () => {
         displayedGames.map((game, i) => (
           <GameCard key={game._id || i} image={game.image} title={game.title} />
         ))
-      ) : showFavoritesOnly && isLoggedIn ? (
+  ) : showFavoritesOnly && isAuthenticated ? (
         <div className="w-full text-center py-12">
           <p className="text-[--muted] text-lg">
             No favorite games yet. Start adding some!

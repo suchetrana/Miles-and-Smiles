@@ -12,7 +12,14 @@ function AppRouter() {
 
         <Route path="/auth" element={<Auth />} />
 
-        <Route path="/games/:gameSlug" element={<GamePage />} />
+        <Route
+          path="/games/:gameSlug"
+          element={
+            <ProtectedRoute>
+              <GamePage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

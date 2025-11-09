@@ -1,10 +1,12 @@
 import axiosClient from "../axiosClient.js";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Login({ onMessage }) {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const navigate = useNavigate();
+  const { applyAuth } = useAuth();
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -14,15 +16,8 @@ export default function Login({ onMessage }) {
 
     try {
       onMessage && onMessage({ text: "Logging in...", type: "info" });
-      const response = await axiosClient.post(`/api/auth/login`, formData);
-
-      console.log("Login Successful:", response.data);
-
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-
-      // Dispatch custom event for same-tab login state changes
-      window.dispatchEvent(new Event("loginStateChange"));
+  const response = await axiosClient.post(`/api/auth/login`, formData);
+  applyAuth(response.data.token, response.data.user);
 
       onMessage &&
         onMessage({
