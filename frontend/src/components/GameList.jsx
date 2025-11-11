@@ -96,7 +96,7 @@ const GameList = () => {
         displayedGames.map((game, i) => (
           <GameCard key={game._id || i} image={game.image} title={game.title} />
         ))
-  ) : showFavoritesOnly && isAuthenticated ? (
+      ) : showFavoritesOnly && isAuthenticated ? (
         <div className="w-full text-center py-12">
           <p className="text-[--muted] text-lg">
             No favorite games yet. Start adding some!
