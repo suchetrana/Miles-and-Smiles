@@ -1,7 +1,7 @@
 import "dotenv/config.js";
 import http from "http";
 import app from "./app.js";
-import { connectDB, disconnectDB } from "./db.js";
+import { connectDB, disconnectDB } from "./config/db.js";
 import setupSocket from "./socket.js";
 
 const PORT = process.env.BACKEND_SERVER_PORT || 3000;

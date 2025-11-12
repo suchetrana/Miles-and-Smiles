@@ -26,6 +26,10 @@ export default function SearchBar({ onChange, className = "", mobileVisible = fa
         className="bg-transparent outline-none text-(--text) placeholder-(--muted) w-full text-sm md:text-base"
       />
       <Search className="text-(--muted)" size={mobileVisible ? 16 : 18} />
+      <Search
+        className="text-(--muted) cursor-pointer"
+        size={mobileVisible ? 16 : 18}
+      />
     </div>
   );
 }

@@ -54,3 +54,28 @@ export async function toggleFavorite(req, res) {
     return res.status(500).json({ message: "Internal server error" });
   }
 }
+
+export async function uploadProfilePicture(req, res) {
+  try {
+    const userId = req.user.id;
+    const imageUrl = req.file.path;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { pfp_url: imageUrl },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.status(200).json({
+      message: "Profile picture updated successfully",
+      pfp_url: user.pfp_url,
+    });
+  } catch (err) {
+    console.error("uploadProfilePicture error:", err);
+    res.status(500).json({ message: "Image upload failed" });
+  }
+}
